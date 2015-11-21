@@ -1,4 +1,4 @@
 #!/bin/bash
 
-source activate anaconda3
+source activate conda3
 jupyter notebook $*

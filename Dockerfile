@@ -49,14 +49,14 @@ RUN cd /tmp \
     && wget --quiet "${CONDA_URL}/${CONDA_INSTALLER}" \
     && bash ./"${CONDA_INSTALLER}" -b -p /opt/conda \
     && echo 'export PATH=$CONDA_DIR/bin:$PATH' > /etc/profile.d/conda.sh \
-    && conda update --all --yes \
-    && conda clean --tarballs --yes \
-    && conda clean --packages --yes \
+    && conda update --quiet --yes --all \
+    && conda clean --yes --tarballs \
+    && conda clean --yes --packages \
     && rm /tmp/* \
     && useradd -m -s /bin/bash -g users -N -u $CONDA_UID $CONDA_USER
 
 USER conda                                                                      
-RUN conda create -n anaconda3 --clone=${CONDA_DIR} \
+RUN conda create --quiet -n conda3 --clone=${CONDA_DIR} \
     && mkdir -p ${CONDA_USER_HOME}/work \
     && mkdir -p ${CONDA_USER_HOME}/.jupyter
 
