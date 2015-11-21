@@ -17,10 +17,10 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PATH=/opt/conda/bin:$PATH
 
 RUN apt-get update --fix-missing \
-    && apt-get install -yq --no-install-recommends locales \
+    && apt-get install -yq locales \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen \
-    && apt-get install -yq --no-install-recommends \
+    && apt-get install -yq \
     bash \
     bzip2 \
     ca-certificates \
