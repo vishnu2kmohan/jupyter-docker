@@ -21,20 +21,16 @@ RUN apt-get update --fix-missing \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen \
     && apt-get install -yq \
-    bash \
     bzip2 \
     ca-certificates \
     curl \
-    dpkg \
     git \
-    grep \
     jq \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
     libxrender1 \
     openssh-client \
-    sed \
     sudo \
     unzip \
     vim \
