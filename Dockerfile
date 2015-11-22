@@ -16,25 +16,25 @@ ENV DEBIAN_FRONTEND=noninteractive \
     CONDA_USER_HOME=/home/conda \
     PATH=/opt/conda/bin:$PATH
 
-RUN apt-get update --fix-missing \
+RUN apt-get update -yq --fix-missing \
     && apt-get install -yq locales \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen \
     && apt-get install -yq \
-    bzip2 \
-    ca-certificates \
-    curl \
-    git \
-    jq \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender1 \
-    openssh-client \
-    sudo \
-    unzip \
-    vim \
-    wget \
+       bzip2 \
+       ca-certificates \
+       curl \
+       git \
+       jq \
+       libglib2.0-0 \
+       libsm6 \
+       libxext6 \
+       libxrender1 \
+       openssh-client \
+       sudo \
+       unzip \
+       vim \
+       wget \
     && apt-get clean
 
 RUN cd /tmp \
