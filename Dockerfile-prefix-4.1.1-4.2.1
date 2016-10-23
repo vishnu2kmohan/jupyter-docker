@@ -1,0 +1,85 @@
+# debian:8.6 - linux; amd64
+# https://github.com/docker-library/repo-info/blob/master/repos/debian/tag-details.md
+FROM debian@sha256:c1af755d300d0c65bb1194d24bce561d70c98a54fb5ce5b1693beb4f7988272f
+
+MAINTAINER Vishnu Mohan <vishnu@mesosphere.com>
+
+ENV CONDA_INSTALL_DIR=/opt/conda \
+    CONDA_INSTALLER=Anaconda3-4.1.1-Linux-x86_64.sh \
+    CONDA_SHA256=4f5c95feb0e7efeadd3d348dcef117d7787c799f24b0429e45017008f3534e55 \
+    CONDA_UID=1000 \
+    CONDA_URL=https://repo.continuum.io/archive \
+    CONDA_USER=conda \
+    CONDA_USER_HOME=/home/conda \
+    DEBIAN_FRONTEND=noninteractive \
+    GPG_KEYSERVER=ha.pool.sks-keyservers.net \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8 \
+    PATH=/opt/conda/bin:$PATH \
+    REPO=http://cdn-fastly.deb.debian.org \
+    SHELL=/bin/bash \
+    TINI_GPG_KEY=6380DC428747F6C393FEACA59A84159D7001A4E5 \
+    TINI_URL=https://github.com/krallin/tini/releases/download \
+    TINI_VERSION=v0.10.0
+
+RUN echo "deb $REPO/debian jessie main\ndeb $REPO/debian-security jessie/updates main" \
+    > /etc/apt/sources.list \
+    && apt-get update -yq --fix-missing && apt-get -yq dist-upgrade \
+    && apt-get install -yq --no-install-recommends locales \
+    && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
+    && locale-gen \
+    && apt-get install -yq --no-install-recommends \
+       bash-completion \
+       bzip2 \
+       ca-certificates \
+       curl \
+       git \
+       jq \
+       libglib2.0-0 \
+       libsm6 \
+       libxext6 \
+       libxrender1 \
+       openssh-client \
+       sudo \
+       unzip \
+       vim \
+       wget \
+    && apt-key adv --keyserver "$GPG_KEYSERVER" --recv-keys "$TINI_GPG_KEY" \
+    && apt-get clean \
+    && rm -rf /var/apt/lists/*
+
+RUN cd /tmp \
+    && curl -fsSL "$TINI_URL/$TINI_VERSION/tini" -o /usr/local/bin/tini \
+    && curl -fsSL -O "$TINI_URL/$TINI_VERSION/tini.asc" \
+    && export GNUPGHOME="$(mktemp -d)" \
+    && gpg --keyserver "$GPG_KEYSERVER" --recv-keys "$TINI_GPG_KEY" \
+    && gpg --batch --verify tini.asc /usr/local/bin/tini \
+    && rm -rf "$GNUPGHOME" tini.asc \
+    && chmod +x /usr/local/bin/tini \
+    && curl -fsSL -O "$CONDA_URL/$CONDA_INSTALLER" \
+    && echo "$CONDA_SHA256" "$CONDA_INSTALLER" | sha256sum -c - \
+    && bash "./$CONDA_INSTALLER" -b -p "$CONDA_INSTALL_DIR" \
+    && conda config --system --add channels conda-forge \
+    && conda clean --tarballs --packages --yes \
+    && echo "export PATH=$CONDA_INSTALL_DIR/bin:$PATH" > /etc/profile.d/conda.sh \
+    && rm -rf /tmp/* \
+    && useradd -m -s /bin/bash -g users -N -u "$CONDA_UID" "$CONDA_USER"
+
+USER conda
+RUN conda create --quiet --name conda3 --clone="$CONDA_INSTALL_DIR" \
+    && mkdir -p "$CONDA_USER_HOME/work" \
+    && mkdir -p "$CONDA_USER_HOME/.jupyter"
+
+WORKDIR "$CONDA_USER_HOME/work"
+EXPOSE 8888
+ENTRYPOINT ["tini", "--"]
+CMD ["notebook.sh"]
+
+# Add local files as late as possible to stay cache friendly
+COPY profile "$CONDA_USER_HOME/.profile"
+COPY bash_profile "$CONDA_USER_HOME/.bash_profile"
+COPY bashrc "$CONDA_USER_HOME/.bashrc"
+COPY dircolors "$CONDA_USER_HOME/.dircolors"
+COPY jupyter_notebook_config.py "$CONDA_USER_HOME/.jupyter/"
+COPY notebook-prefix.sh "/usr/local/bin/notebook.sh"
