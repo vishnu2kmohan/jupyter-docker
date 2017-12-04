@@ -1,0 +1,13 @@
+FROM vishnumohan/miniconda3
+
+MAINTAINER Vishnu Mohan <vishnu@mesosphere.com>
+
+COPY environment.yml "${HOME}/work/jupyter-conda-env.yml"
+RUN ${CONDA_DIR}/bin/conda env create --json -q -f jupyter-conda-env.yml \
+    && ${CONDA_DIR}/bin/conda clean --json -tipsy
+
+EXPOSE 8888
+CMD ["notebook.sh"]
+
+COPY jupyter_notebook_config.py "${HOME}/.jupyter/"
+COPY notebook-home.sh "/usr/local/bin/notebook.sh"
