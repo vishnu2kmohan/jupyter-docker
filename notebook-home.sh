@@ -1,4 +1,5 @@
 #!/bin/bash
 
 source "$HOME/.bash_profile"
-jupyter notebook $*
+source activate jupyter
+jupyter lab "$@"

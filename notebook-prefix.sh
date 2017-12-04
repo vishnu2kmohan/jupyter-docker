@@ -1,4 +1,4 @@
 #!/bin/bash
 
-source activate conda3
-jupyter notebook $*
+source activate jupyter
+jupyter lab "$@"
