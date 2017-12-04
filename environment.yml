@@ -1,0 +1,9 @@
+name: jupyter
+prefix: /home/conda/conda/envs/jupyter
+channels:
+- conda-forge
+dependencies:
+- jupyterhub
+- jupyterlab
+- sparkmagic
+- ipywidgets
