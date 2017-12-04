@@ -3,7 +3,9 @@ prefix: /home/conda/conda/envs/jupyter
 channels:
 - conda-forge
 dependencies:
+- bokeh
+- ipywidgets
 - jupyterhub
 - jupyterlab
+- pyarrow
 - sparkmagic
-- ipywidgets
