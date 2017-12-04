@@ -2,12 +2,18 @@ FROM vishnumohan/miniconda3
 
 MAINTAINER Vishnu Mohan <vishnu@mesosphere.com>
 
-COPY environment.yml "${HOME}/work/jupyter-conda-env.yml"
-RUN ${CONDA_DIR}/bin/conda env create --json -q -f jupyter-conda-env.yml \
-    && ${CONDA_DIR}/bin/conda clean --json -tipsy
+COPY --chown="1000:100" jupyter-conda-env.yml "${HOME}/work/"
+RUN mkdir -p $HOME/.sparkmagic \
+    && ${CONDA_DIR}/bin/conda env create --json -q -f jupyter-conda-env.yml \
+    && ${CONDA_DIR}/bin/conda clean --json -tipsy \
+    && bash -c 'source activate jupyter \
+    && jupyter labextension install @jupyter-widgets/jupyterlab-manager \
+    && jupyter labextension install @jupyterlab/hub-extension \
+    && source deactivate'
 
 EXPOSE 8888
 CMD ["notebook.sh"]
 
-COPY jupyter_notebook_config.py "${HOME}/.jupyter/"
-COPY notebook-home.sh "/usr/local/bin/notebook.sh"
+COPY --chown="1000:100" sparkmagic_config.json.template "${HOME}/.sparkmagic/config.json"
+COPY --chown="1000:100" jupyter_notebook_config.py "${HOME}/.jupyter/"
+COPY --chown="1000:100" notebook-home.sh "/usr/local/bin/notebook.sh"
